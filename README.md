@@ -1,5 +1,7 @@
 # AetherGate Pro 🌌
 
+[中文文档](README_CN.md)
+
 AetherGate Pro is an enterprise-grade, high-availability VPN & Proxy Gateway manager designed to run on Linux Virtual Private Servers (VPS). Built by and for proxy network engineers, it solves the notorious issue of SSH disconnection and routing conflicts commonly experienced when running VPN gateways directly on VPS host interfaces.
 
 By isolating all VPN activity inside a dedicated Linux **Network Namespace (`netns`)** and routing proxy traffic via an asynchronous single-port mixed protocol (SOCKS5/HTTP) server, AetherGate Pro provides a seamless, self-healing proxy gateway with a gorgeous glassmorphic dashboard.
@@ -44,22 +46,29 @@ flowchart TD
 
 This guide describes how to deploy **AetherGate Pro** on a clean Linux VPS (Ubuntu 20.04/22.04+ or Debian 11+ recommended).
 
-### 1. Prerequisites
+### Option 1: One-Key Installation (Recommended)
+
+Simply run the following command on your VPS to automatically pull the repository and install the gateway:
+```bash
+curl -sSL https://raw.githubusercontent.com/JFGAtlas/aethergate-pro/main/install_vps.sh | bash
+```
+
+---
+
+### Option 2: Manual Installation
+
+#### 1. Prerequisites
 Ensure you have root access to your VPS. Connect via SSH:
 ```bash
 ssh root@your_vps_ip
 ```
 
-### 2. Copy Codebase to VPS
-You can clone this repository to your VPS directory (e.g., `/tmp/aethergate-pro`):
+#### 2. Clone Repository to VPS
 ```bash
-git clone https://github.com/your-username/aethergate-pro.git /tmp/aethergate-pro
+git clone https://github.com/JFGAtlas/aethergate-pro.git /tmp/aethergate-pro
 ```
 
-### 3. Run the Automated Installer
-AetherGate Pro includes an automated shell installer that takes care of system package dependency resolution, namespace link setups, iptables rules, credential migrations, and systemd service generation.
-
-Simply navigate to the folder and run:
+#### 3. Run the Installer
 ```bash
 cd /tmp/aethergate-pro
 sudo bash install.sh
