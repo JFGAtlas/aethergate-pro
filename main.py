@@ -106,6 +106,7 @@ class VPNGateProManager:
         self.connected_at = 0
         self.proxy_ok = False
         self.failed_node_ids = set()
+        self.ns_ok = True
         
         # Background loops
         self.loops_running = False
@@ -268,6 +269,11 @@ class VPNGateProManager:
 
     async def connect_node(self, node_id):
         """Manually trigger connection to a node."""
+        if not self.ns_ok:
+            async with self.state_lock:
+                self.last_check_message = "连接失败：隔离网络空间 (NetNS) 未就绪，无法建立连接"
+            return
+
         async with self.state_lock:
             if self.is_connecting:
                 print("[Manager] Already connecting, ignoring connect_node request.", flush=True)
@@ -560,6 +566,9 @@ class VPNGateProManager:
 
     async def auto_reconnect(self):
         """Select node based on routing mode and connect."""
+        if not self.ns_ok:
+            return
+
         async with self.state_lock:
             if self.is_connecting:
                 print("[Manager] Already connecting, ignoring auto_reconnect request.", flush=True)
@@ -812,6 +821,7 @@ async def main():
     
     # 1. Setup namespace
     ns_ok = manager.netns_mgr.setup()
+    manager.ns_ok = ns_ok
     if not ns_ok:
         manager.last_check_message = "❌ 隔离网络空间 (NetNS vpn_ns) 创建失败！请确认以 root 权限运行此服务，或者您的 VPS 虚拟化环境支持网络命名空间 (LXC容器需开启 nesting / 挂载权限)。"
         print(f"[System] {manager.last_check_message}", flush=True)
