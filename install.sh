@@ -254,9 +254,7 @@ StartLimitBurst=5
 # ── Security hardening ──────────────────────────────────
 PrivateTmp=yes
 ProtectHome=yes
-# Allow full network access (required for VPN)
-# ProtectSystem is NOT used — we need iptables access
-CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_SYS_MODULE
+
 
 # ── Logging ─────────────────────────────────────────────
 StandardOutput=journal
