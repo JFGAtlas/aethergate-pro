@@ -149,5 +149,24 @@ sudo journalctl -u vpngate-pro -f --no-pager
 
 ---
 
+## 🗑️ Uninstallation & Clean Up
+
+If you need to uninstall AetherGate Pro and completely remove all configuration caches, network namespaces, and virtual network interfaces from your VPS, run the following one-key uninstaller:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/JFGAtlas/aethergate-pro/main/uninstall.sh | bash
+```
+
+> [!IMPORTANT]
+> **The uninstaller script will automatically perform the following cleanup**:
+> 1. Stop and disable the `vpngate-pro` systemd service, removing the systemd configuration file.
+> 2. Force terminate any orphaned `openvpn`, `socat` forwarding, and proxy processes.
+> 3. Destroy the `vpn_ns` network namespace, delete the virtual interface `veth_host`, and remove `/etc/netns/vpn_ns` DNS overrides.
+> 4. Delete the iptables NAT masquerade rules injected by AetherGate.
+> 5. Revert the `sysctl` kernel tunables and completely delete `/opt/vpngate-pro` deployment directory and configuration files.
+
+---
+
 ## ⚖️ License
 This project is open-source and licensed under the MIT License. Feel free to fork, contribute, and open issues.
+

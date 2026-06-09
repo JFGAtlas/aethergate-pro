@@ -155,5 +155,24 @@ sudo journalctl -u vpngate-pro -f --no-pager
 
 ---
 
+## 🗑️ 完全卸载与清理
+
+如果您需要彻底卸载 AetherGate Pro 并清理 VPS 内的所有缓存数据、网络命名空间及虚拟网卡，只需在您的 VPS 上粘贴并运行以下一键卸载脚本：
+
+```bash
+curl -sSL https://raw.githubusercontent.com/JFGAtlas/aethergate-pro/main/uninstall.sh | bash
+```
+
+> [!IMPORTANT]
+> **该一键卸载脚本会自动执行以下安全清理**：
+> 1. 停止并彻底移除 `vpngate-pro` systemd 服务及关联配置。
+> 2. 强制终止后台残留的 `openvpn`、`socat` 端口转发及代理相关进程。
+> 3. 干净地销毁 `vpn_ns` 网络命名空间，移除虚拟网卡接口 `veth_host` 和解析覆写。
+> 4. 自动撤销防火墙中由 AetherGate 注入的 iptables NAT 转发规则。
+> 5. 还原 `sysctl` 内核调优参数，彻底删除 `/opt/vpngate-pro` 部署目录及历史配置缓存。
+
+---
+
 ## ⚖️ 开源协议
 本仓库基于 MIT 许可协议开源。您可以自由地复制、修改和分发。欢迎提交 Issue 和 Pull Request！
+
