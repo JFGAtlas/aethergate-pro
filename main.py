@@ -49,7 +49,8 @@ DEFAULT_CONFIG = {
     "force_country": "",
     "connection_enabled": False,
     "fixed_node_id": "",
-    "scamalytics_threshold": 10
+    "scamalytics_threshold": 10,
+    "api_url": "https://www.vpngate.net/api/iphone/"
 }
 
 ALLOWED_ROUTING_MODES = {"auto", "fixed_ip", "fixed_region"}
@@ -66,6 +67,7 @@ CONFIG_TYPES = {
     "connection_enabled": bool,
     "fixed_node_id": str,
     "scamalytics_threshold": int,
+    "api_url": str
 }
 
 def get_data_dir() -> Path:
@@ -97,7 +99,10 @@ class VPNGateProManager:
         self.vpn_runner = OpenVPNRunner(self.netns_mgr, data_dir=self.data_dir)
         # Inject WS broadcaster so OpenVPN log milestones stream to the UI in real-time
         self.vpn_runner.set_ws_broadcaster(ws_broadcaster.broadcast)
-        self.scraper = CandidateScraper(data_dir=self.data_dir)
+        self.scraper = CandidateScraper(
+            data_dir=self.data_dir,
+            api_url=self.config.get("api_url", "https://www.vpngate.net/api/iphone/")
+        )
         
         # State indicators
         self.state_lock = asyncio.Lock()
