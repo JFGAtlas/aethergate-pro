@@ -34,7 +34,7 @@ class NetNSManager:
             return self.ns_name in namespaces
         return False
 
-    def setup(self):
+    def setup(self) -> bool:
         """Set up the namespace, veth pair, routing, and iptables rules."""
         if not self.is_linux:
             print("[NetNS] Non-Linux platform detected. Skipping namespace setup (mock mode).", flush=True)
@@ -46,24 +46,54 @@ class NetNSManager:
         self.cleanup()
 
         # 2. Create namespace
-        self.run_cmd(f"ip netns add {self.ns_name}")
-        self.run_cmd(f"ip netns exec {self.ns_name} ip link set lo up")
+        ok, err = self.run_cmd(f"ip netns add {self.ns_name}")
+        if not ok:
+            print(f"[NetNS] Critical Error: Failed to add network namespace '{self.ns_name}': {err}", flush=True)
+            return False
+            
+        ok, _ = self.run_cmd(f"ip netns exec {self.ns_name} ip link set lo up")
+        if not ok:
+            print("[NetNS] Warning: Failed to set lo interface up inside namespace.", flush=True)
 
         # 3. Create veth pair
         # veth_host (host side) <-> veth_vpn (inside namespace)
-        self.run_cmd(f"ip link add veth_host type veth peer name veth_vpn")
-        self.run_cmd(f"ip link set veth_vpn netns {self.ns_name}")
+        ok, err = self.run_cmd(f"ip link add veth_host type veth peer name veth_vpn")
+        if not ok:
+            print(f"[NetNS] Critical Error: Failed to create veth pair: {err}", flush=True)
+            return False
+            
+        ok, err = self.run_cmd(f"ip link set veth_vpn netns {self.ns_name}")
+        if not ok:
+            print(f"[NetNS] Critical Error: Failed to move veth_vpn into namespace: {err}", flush=True)
+            return False
 
         # 4. Configure Host side of veth
-        self.run_cmd(f"ip addr add {self.host_ip}/24 dev veth_host")
-        self.run_cmd(f"ip link set veth_host up")
+        ok, err = self.run_cmd(f"ip addr add {self.host_ip}/24 dev veth_host")
+        if not ok:
+            print(f"[NetNS] Critical Error: Failed to assign address to veth_host: {err}", flush=True)
+            return False
+            
+        ok, err = self.run_cmd(f"ip link set veth_host up")
+        if not ok:
+            print(f"[NetNS] Critical Error: Failed to set veth_host interface up: {err}", flush=True)
+            return False
 
         # 5. Configure NS side of veth
-        self.run_cmd(f"ip netns exec {self.ns_name} ip addr add {self.ns_ip}/24 dev veth_vpn")
-        self.run_cmd(f"ip netns exec {self.ns_name} ip link set veth_vpn up")
+        ok, err = self.run_cmd(f"ip netns exec {self.ns_name} ip addr add {self.ns_ip}/24 dev veth_vpn")
+        if not ok:
+            print(f"[NetNS] Critical Error: Failed to assign address to veth_vpn inside namespace: {err}", flush=True)
+            return False
+            
+        ok, err = self.run_cmd(f"ip netns exec {self.ns_name} ip link set veth_vpn up")
+        if not ok:
+            print(f"[NetNS] Critical Error: Failed to set veth_vpn interface up inside namespace: {err}", flush=True)
+            return False
 
         # 6. Set default gateway inside the namespace to go through Host IP
-        self.run_cmd(f"ip netns exec {self.ns_name} ip route add default via {self.host_ip}")
+        ok, err = self.run_cmd(f"ip netns exec {self.ns_name} ip route add default via {self.host_ip}")
+        if not ok:
+            print(f"[NetNS] Critical Error: Failed to set default route inside namespace: {err}", flush=True)
+            return False
 
         # 7. Enable IP forwarding on Host
         self.run_cmd("sysctl -w net.ipv4.ip_forward=1")
@@ -146,9 +176,26 @@ class NetNSManager:
         print(f"[NetNS] Cleaning up network namespace '{self.ns_name}' assets...", flush=True)
         self.stop_port_forward()
 
-        # Delete namespace (automatically deletes veth_vpn and routes inside it)
+        # 1. Force kill all processes running inside the namespace
+        try:
+            res = subprocess.run(["ip", "netns", "pids", self.ns_name], capture_output=True, text=True, timeout=5)
+            if res.returncode == 0 and res.stdout.strip():
+                pids = res.stdout.strip().split()
+                print(f"[NetNS] Force killing processes inside namespace: {pids}", flush=True)
+                subprocess.run(["kill", "-9"] + pids, capture_output=True)
+        except Exception as e:
+            print(f"[NetNS] Warning: Failed to kill processes inside namespace: {e}", flush=True)
+
+        # 2. Delete namespace (automatically deletes veth_vpn and routes inside it)
         if self.exists():
             self.run_cmd(f"ip netns del {self.ns_name}", check=False)
+
+        # 3. Double check and force unmount if namespace file still exists (resource busy lock)
+        ns_file = f"/run/netns/{self.ns_name}"
+        if os.path.exists(ns_file):
+            print(f"[NetNS] Namespace file still exists after del, force unmounting {ns_file}...", flush=True)
+            self.run_cmd(f"umount -l {ns_file}", check=False)
+            self.run_cmd(f"rm -f {ns_file}", check=False)
 
         # Delete host veth interface if it exists
         self.run_cmd("ip link delete veth_host", check=False)

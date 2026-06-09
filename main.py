@@ -771,6 +771,11 @@ class VPNGateProManager:
         print("[System] Service terminated successfully.", flush=True)
 
 async def main():
+    # Root check for Linux
+    if sys.platform.startswith("linux") and os.geteuid() != 0:
+        print("[System] Error: AetherGate Pro must be run as root (sudo python3 main.py) to manage network namespaces and iptables.", file=sys.stderr, flush=True)
+        sys.exit(1)
+
     parser = argparse.ArgumentParser(description="AetherGate Pro Gateway Manager")
     parser.add_argument("--proxy-only", action="store_true", help="Run proxy server inside network namespace")
     parser.add_argument("--port", type=int, default=7928, help="Proxy server listen port")
@@ -806,10 +811,14 @@ async def main():
     manager = VPNGateProManager()
     
     # 1. Setup namespace
-    manager.netns_mgr.setup()
+    ns_ok = manager.netns_mgr.setup()
+    if not ns_ok:
+        manager.last_check_message = "❌ 隔离网络空间 (NetNS vpn_ns) 创建失败！请确认以 root 权限运行此服务，或者您的 VPS 虚拟化环境支持网络命名空间 (LXC容器需开启 nesting / 挂载权限)。"
+        print(f"[System] {manager.last_check_message}", flush=True)
     
     # 2. Spawn namespace proxy
-    await manager.start_proxy_subprocess()
+    if ns_ok:
+        await manager.start_proxy_subprocess()
     
     # 3. Start web API dashboard server
     web_server = AsyncWebServer(
@@ -820,7 +829,8 @@ async def main():
     await web_server.start()
     
     # 4. Start background update/watchdog tasks
-    await manager.start_background_loops()
+    if ns_ok:
+        await manager.start_background_loops()
 
     # 5. Keep running and listen for termination
     try:
