@@ -313,9 +313,13 @@ echo "────────────────────────�
 # Detect configured port from data dir config
 UI_PORT="8787"
 SECRET_PATH=""
+UI_USER="admin"
+UI_PASS=""
 if [ -f "${DATA_DIR}/config.json" ]; then
     UI_PORT=$(    "$PYTHON_BIN" -c "import json; c=json.load(open('${DATA_DIR}/config.json')); print(c.get('ui_port',8787))"  2>/dev/null || echo "8787")
     SECRET_PATH=$(  "$PYTHON_BIN" -c "import json; c=json.load(open('${DATA_DIR}/config.json')); print(c.get('secret_path',''))" 2>/dev/null || echo "")
+    UI_USER=$(    "$PYTHON_BIN" -c "import json; c=json.load(open('${DATA_DIR}/config.json')); print(c.get('username','admin'))"  2>/dev/null || echo "admin")
+    UI_PASS=$(    "$PYTHON_BIN" -c "import json; c=json.load(open('${DATA_DIR}/config.json')); print(c.get('password',''))"  2>/dev/null || echo "")
 fi
 
 # Get server public IP best-effort
@@ -334,6 +338,9 @@ if [ -n "$SECRET_PATH" ]; then
 else
     echo -e "  🌐 Dashboard UI :  http://${SERVER_IP}:${UI_PORT}/"
 fi
+echo -e "  🔑 UI Username  :  ${UI_USER}"
+echo -e "  🔑 UI Password  :  ${UI_PASS}"
+echo ""
 echo -e "  🔌 Proxy (SOCKS5/HTTP) :  ${SERVER_IP}:7928"
 echo -e "  📡 WebSocket endpoint  :  ws://${SERVER_IP}:${UI_PORT}/${SECRET_PATH}/api/ws"
 echo ""
