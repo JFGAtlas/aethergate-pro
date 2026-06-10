@@ -116,6 +116,10 @@ class NetNSManager:
             
         self.run_cmd(masq_cmd)
         
+        # 8b. Configure FORWARD rules to allow traffic to/from namespace
+        self.run_cmd(f"iptables -I FORWARD -s {self.subnet}.0/24 -j ACCEPT")
+        self.run_cmd(f"iptables -I FORWARD -d {self.subnet}.0/24 -j ACCEPT")
+        
         # 9. Configure DNS overrides for the namespace
         try:
             os.makedirs(f"/etc/netns/{self.ns_name}", exist_ok=True)
@@ -208,6 +212,14 @@ class NetNSManager:
                 if f"{self.subnet}.0/24" in rule:
                     del_rule = rule.replace("-A", "-D")
                     self.run_cmd(f"iptables -t nat {del_rule}", check=False)
+
+        # Clean up iptables FORWARD rules
+        success, rules = self.run_cmd("iptables -S FORWARD")
+        if success:
+            for rule in rules.splitlines():
+                if f"{self.subnet}.0/24" in rule:
+                    del_rule = rule.replace("-A", "-D")
+                    self.run_cmd(f"iptables {del_rule}", check=False)
 
         # Delete DNS override files
         ns_resolv_dir = f"/etc/netns/{self.ns_name}"
