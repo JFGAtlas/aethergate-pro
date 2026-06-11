@@ -170,3 +170,20 @@ curl -sSL https://raw.githubusercontent.com/JFGAtlas/aethergate-pro/main/uninsta
 ## ⚖️ License
 This project is open-source and licensed under the MIT License. Feel free to fork, contribute, and open issues.
 
+---
+
+## 💖 Declaration & Donation (Charity Open-Source Project)
+
+This project is a **charity open-source project, ad-free, permanently updated, and completely free to use**. If you find it helpful, feel free to support the author by donating to the following addresses:
+
+- **EVM (ETH/BSC/Polygon, etc.)**: `0x3EE918603d5a1c0f983BEC5B5d8C301F8ed58A2C`
+- **SOL**: `2LEDYj19kormPezoiFgZAguyCVsfaM3HExsYe2NWpNqk`
+- **BTC**: `bc1qs2nwumk24fjtk574f0awaxnh7jl9v7shrd5yw7`
+
+---
+
+## 📞 Contact Me
+
+* **X (Twitter)**: [@JFGAi](https://x.com/JFGAi)
+* **Telegram**: [https://t.me/jfgae](https://t.me/jfgae)
+* **GitHub**: [https://github.com/JFGAtlas](https://github.com/JFGAtlas)

@@ -1644,4 +1644,66 @@ body.light-theme .top-status-details .detail-row {
     height: 470px;
 }
 
+/* App Footer Styling */
+.app-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    padding: 1.5rem;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    gap: 0.75rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.footer-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.footer-link:hover {
+    color: #c084fc;
+    transform: translateY(-1px);
+}
+
+.footer-link svg {
+    width: 16px;
+    height: 16px;
+}
+
+.footer-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    flex-wrap: wrap;
+    opacity: 0.8;
+}
+
+.footer-meta .divider {
+    color: var(--border-color);
+}
+
 

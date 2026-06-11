@@ -176,3 +176,20 @@ curl -sSL https://raw.githubusercontent.com/JFGAtlas/aethergate-pro/main/uninsta
 ## ⚖️ 开源协议
 本仓库基于 MIT 许可协议开源。您可以自由地复制、修改和分发。欢迎提交 Issue 和 Pull Request！
 
+---
+
+## 💖 申明与支持（慈善开源项目）
+
+本项目为**慈善开源项目，无广告，永久更新，免费使用**。如果您觉得本网关好用，欢迎通过以下捐赠地址对作者表示支持：
+
+- **EVM (ETH/BSC/Polygon等)**: `0x3EE918603d5a1c0f983BEC5B5d8C301F8ed58A2C`
+- **SOL**: `2LEDYj19kormPezoiFgZAguyCVsfaM3HExsYe2NWpNqk`
+- **BTC**: `bc1qs2nwumk24fjtk574f0awaxnh7jl9v7shrd5yw7`
+
+---
+
+## 📞 联系方式
+
+* **X (Twitter)**: [@JFGAi](https://x.com/JFGAi)
+* **Telegram**: [https://t.me/jfgae](https://t.me/jfgae)
+* **GitHub**: [https://github.com/JFGAtlas](https://github.com/JFGAtlas)
